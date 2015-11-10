@@ -22,11 +22,16 @@ Schema.plugin(tempCollectionPlugin, {});
 var Model = mongoose.model('Model', Schema);
 Model.find().populate('refDoc').lean() // need to lean the doc so it can be modified and saved inside the plugin
 .then(function(result){
-  return Model.resultIntoTempCollection(result).then(function(tempModel){
+  // resultIntoTempCollection returns a temporary model
+  return Model.resultIntoTempCollection(result).then(function(tempModel){ 
 		return tempModel.aggregate(
 		  [{$project: { someFieldProjection: "refDoc.someField"}]
-		).exec().then(function(){
+		).exec().then(function(aggregatedResult){
 		  console.log(aggregatedResult);
+		  tempModel.removeTempCollection(); // cleanup by deleting the temporary collection
+		}, function(err){
+		  console.error(err);
+		  tempModel.removeTempCollection(); // cleanup by deleting the temporary collection
 		})  
 });
 
