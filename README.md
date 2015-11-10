@@ -14,7 +14,7 @@ var SubSchema = = new mongoose.Schema({
 var Schema = new mongoose.Schema({
   refDoc: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'subDocModel', // needs to be defined elsewhere
+		ref: 'subDocModel', // subDocModel would need to be defined elsewhere else in this example
 	}	
 });
 
@@ -24,7 +24,7 @@ Model.find().populate('refDoc').lean() // need to lean the doc so it can be modi
 .then(function(result){
   // resultIntoTempCollection returns a temporary model
   return Model.resultIntoTempCollection(result).then(function(tempModel){ 
-		return tempModel.aggregate(
+		return tempModel.aggregate( // now we can aggregate using the populated subdoc
 		  [{$project: { someFieldProjection: "refDoc.someField"}]
 		).exec().then(function(aggregatedResult){
 		  console.log(aggregatedResult);
